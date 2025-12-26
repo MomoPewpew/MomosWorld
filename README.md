@@ -19,6 +19,29 @@ docker compose up --build
 
 Then open `http://localhost:3000`.
 
+## Deploy (GitHub Actions → SFTP)
+
+This repo is configured to **build a static export** and **SFTP (SSH) deploy** it on pushes to `main`.
+
+- **Output**: Next.js generates a static site in `out/` (via `output: "export"` in `next.config.mjs`)
+- **Deploy**: GitHub Actions uploads `out/` to your server directory (default `/var/www/html/`)
+
+### Required GitHub Secrets
+
+Add these secrets in your GitHub repo settings:
+
+- **SSH_HOST**: SSH/SFTP hostname (e.g. `example.com`)
+- **SSH_USERNAME**: SSH username
+- **SSH_PASSWORD**: SSH/SFTP password
+- **SSH_PORT**: typically `22`
+
+Optional (common for SFTP-chrooted accounts):
+
+- **SSH_TARGET_DIR**: remote directory to upload into. Defaults to `.` (your SFTP landing directory).
+  - If your host exposes `/var/www/html` inside the SFTP filesystem, set this to `/var/www/html`.
+
+The workflow file is `/.github/workflows/deploy.yml`.
+
 ## Local development (without Docker)
 
 ```bash

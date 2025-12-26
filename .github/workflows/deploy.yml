@@ -1,0 +1,75 @@
+name: Build and SFTP Deploy
+
+on:
+  push:
+    branches: ["main"]
+
+concurrency:
+  group: deploy-main
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build (static export)
+        run: npm run build
+
+      - name: Install SFTP client (password auth)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y openssh-client sshpass
+
+      - name: Deploy via SFTP (upload out/ → /var/www/html/)
+        env:
+          SSH_HOST: ${{ secrets.SSH_HOST }}
+          SSH_USERNAME: ${{ secrets.SSH_USERNAME }}
+          SSH_PASSWORD: ${{ secrets.SSH_PASSWORD }}
+          SSH_PORT: ${{ secrets.SSH_PORT }}
+          SSH_TARGET_DIR: ${{ secrets.SSH_TARGET_DIR }}
+        run: |
+          test -d out
+          : "${SSH_PORT:=22}"
+          # Many "SFTP-only" accounts are chrooted; in that case absolute paths like
+          # /var/www/html won't exist. Default to the SFTP landing directory.
+          : "${SSH_TARGET_DIR:=.}"
+
+          SSH_HOST_CLEAN="$(printf %s "${SSH_HOST}" | tr -d '\r\n')"
+          SSH_USERNAME_CLEAN="$(printf %s "${SSH_USERNAME}" | tr -d '\r\n')"
+          SSH_PASSWORD_CLEAN="$(printf %s "${SSH_PASSWORD}" | tr -d '\r\n')"
+          SSH_PORT_CLEAN="$(printf %s "${SSH_PORT}" | tr -d '\r\n')"
+          SSH_TARGET_DIR_CLEAN="$(printf %s "${SSH_TARGET_DIR}" | tr -d '\r\n')"
+
+          cat > sftp-batch.txt <<'EOF'
+          pwd
+          ls
+          cd __TARGET_DIR__
+          pwd
+          ls
+          lcd out
+          put -r ./*
+          bye
+          EOF
+
+          # Substitute target dir (kept out of the heredoc to avoid quoting issues).
+          sed -i "s|__TARGET_DIR__|${SSH_TARGET_DIR_CLEAN}|g" sftp-batch.txt
+
+          sshpass -p "${SSH_PASSWORD_CLEAN}" \
+            sftp -oBatchMode=no -oStrictHostKeyChecking=no -oUserKnownHostsFile=/dev/null \
+            -P "${SSH_PORT_CLEAN}" \
+            -b sftp-batch.txt \
+            "${SSH_USERNAME_CLEAN}@${SSH_HOST_CLEAN}"
+
+

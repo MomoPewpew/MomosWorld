@@ -38,12 +38,13 @@ const PALETTE = [
 
 export function TagPill({
   tag,
+  href,
   selected
 }: {
   tag: string;
+  href: string;
   selected?: boolean;
 }) {
-  const href = selected ? "/" : `/?tag=${encodeURIComponent(tag)}`;
   const palette = PALETTE[hashString(tag) % PALETTE.length];
   return (
     <Link

@@ -1,131 +1,28 @@
-import { ArticleCard } from "@/components/ArticleCard";
-import { TagPill } from "@/components/TagPill";
+import { Suspense } from "react";
+
 import { getAllArticleMetas, getAllTags } from "@/lib/articles";
+import { HomeClient } from "@/components/HomeClient";
 
-function firstSearchParam(
-  v: string | string[] | undefined
-): string | undefined {
-  if (Array.isArray(v)) return v[0];
-  return v;
-}
-
-export default async function Home({
-  searchParams
-}: {
-  searchParams?: Promise<Record<string, string | string[] | undefined>>;
-}) {
-  const sp = (await searchParams) ?? {};
-  const q = (firstSearchParam(sp.q) ?? "").trim();
-  const selectedTag = (firstSearchParam(sp.tag) ?? "").trim();
-
+export default function Home() {
   const all = getAllArticleMetas();
   const tags = getAllTags();
 
-  const qLower = q.toLowerCase();
-  const filtered = all.filter((a) => {
-    if (selectedTag && !a.tags.includes(selectedTag)) return false;
-    if (!qLower) return true;
-    const haystack = [a.title, a.summary ?? "", a.tags.join(" ")].join(" ").toLowerCase();
-    return haystack.includes(qLower);
-  });
-
   return (
-    <div className="space-y-8">
-      <section className="space-y-3">
-        <h1 className="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
-          Creative projects, documented
-        </h1>
-        <p className="max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
-          This is a feed of article blocks. Filter by tags and keyword search.
-          Click an article title to open the standalone page.
-        </p>
-      </section>
-
-      <section className="rounded-2xl border border-black/10 bg-white/70 p-5 shadow-[0_0_0_1px_rgba(0,0,0,0.03)] dark:border-white/10 dark:bg-zinc-950 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.03)]">
-        <form className="flex flex-col gap-4 sm:flex-row sm:items-end">
-          <div className="flex-1">
-            <label className="mb-1 block text-xs font-medium text-zinc-600 dark:text-zinc-400">
-              Keyword
-            </label>
-            <input
-              name="q"
-              defaultValue={q}
-              placeholder="Search titles, tags, summaries…"
-              className="w-full rounded-lg border border-black/10 bg-white px-3 py-2 text-sm text-zinc-900 placeholder:text-zinc-400 outline-none focus:border-black/20 dark:border-white/10 dark:bg-zinc-900 dark:text-zinc-100 dark:placeholder:text-zinc-500 dark:focus:border-white/20"
-            />
-          </div>
-          <div className="flex gap-2">
-            <button
-              type="submit"
-              className="rounded-lg bg-zinc-900 px-4 py-2 text-sm font-medium text-zinc-50 hover:bg-black dark:bg-zinc-200 dark:text-zinc-900 dark:hover:bg-white"
-            >
-              Apply
-            </button>
-            <a
-              href="/"
-              className="rounded-lg border border-black/10 bg-white/60 px-4 py-2 text-sm text-zinc-800 hover:border-black/20 dark:border-white/10 dark:bg-zinc-950 dark:text-zinc-200 dark:hover:border-white/20"
-            >
-              Clear
-            </a>
-          </div>
-        </form>
-
-        {tags.length > 0 && (
-          <div className="mt-4">
-            <div className="mb-2 text-xs font-medium text-zinc-600 dark:text-zinc-400">
-              Tags
-            </div>
-            <div className="flex flex-wrap gap-2">
-              {tags.map((t) => (
-                <TagPill key={t} tag={t} selected={selectedTag === t} />
-              ))}
-            </div>
-          </div>
-        )}
-      </section>
-
-      <section className="space-y-4">
-        <div className="flex items-center justify-between">
-          <div className="text-sm text-zinc-600 dark:text-zinc-400">
-            Showing{" "}
-            <span className="font-medium text-zinc-900 dark:text-zinc-200">
-              {filtered.length}
-            </span>{" "}
-            of{" "}
-            <span className="font-medium text-zinc-900 dark:text-zinc-200">
-              {all.length}
-            </span>
-          </div>
-          {(selectedTag || q) && (
-            <div className="text-xs text-zinc-500 dark:text-zinc-500">
-              Filters:{" "}
-              {selectedTag && (
-                <span className="text-zinc-700 dark:text-zinc-300">
-                  tag=<span className="font-medium">{selectedTag}</span>{" "}
-                </span>
-              )}
-              {q && (
-                <span className="text-zinc-700 dark:text-zinc-300">
-                  q=<span className="font-medium">{q}</span>
-                </span>
-              )}
-            </div>
-          )}
-        </div>
-
-        {filtered.length === 0 ? (
-          <div className="rounded-2xl border border-black/10 bg-white/70 p-6 text-sm text-zinc-600 shadow-[0_0_0_1px_rgba(0,0,0,0.03)] dark:border-white/10 dark:bg-zinc-950 dark:text-zinc-400 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.03)]">
-            No articles match your filters yet.
-          </div>
-        ) : (
+    <Suspense
+      fallback={
+        <div className="space-y-6">
+          <div className="h-8 w-80 rounded-lg bg-black/5 dark:bg-white/10" />
+          <div className="h-4 w-[32rem] rounded bg-black/5 dark:bg-white/10" />
+          <div className="h-40 rounded-2xl border border-black/10 bg-white/70 shadow-[0_0_0_1px_rgba(0,0,0,0.03)] dark:border-white/10 dark:bg-zinc-950 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.03)]" />
           <div className="space-y-4">
-            {filtered.map((m) => (
-              <ArticleCard key={m.slug} meta={m} selectedTag={selectedTag} />
-            ))}
+            <div className="h-24 rounded-2xl border border-black/10 bg-white/70 shadow-[0_0_0_1px_rgba(0,0,0,0.03)] dark:border-white/10 dark:bg-zinc-950 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.03)]" />
+            <div className="h-24 rounded-2xl border border-black/10 bg-white/70 shadow-[0_0_0_1px_rgba(0,0,0,0.03)] dark:border-white/10 dark:bg-zinc-950 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.03)]" />
           </div>
-        )}
-      </section>
-    </div>
+        </div>
+      }
+    >
+      <HomeClient all={all} tags={tags} />
+    </Suspense>
   );
 }
 

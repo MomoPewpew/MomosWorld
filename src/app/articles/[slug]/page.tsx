@@ -2,7 +2,13 @@ import { notFound } from "next/navigation";
 
 import { AssetPlaylist } from "@/components/AssetPlaylist";
 import { TagPill } from "@/components/TagPill";
-import { getArticleBySlug } from "@/lib/articles";
+import { getAllArticleMetas, getArticleBySlug } from "@/lib/articles";
+
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return getAllArticleMetas().map((m) => ({ slug: m.slug }));
+}
 
 export default async function ArticlePage({
   params
@@ -31,7 +37,7 @@ export default async function ArticlePage({
         {article.meta.tags.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {article.meta.tags.map((t) => (
-              <TagPill key={t} tag={t} />
+              <TagPill key={t} tag={t} href={`/?tag=${encodeURIComponent(t)}`} />
             ))}
           </div>
         )}

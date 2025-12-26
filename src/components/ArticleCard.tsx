@@ -5,11 +5,9 @@ import { AssetPlaylist } from "@/components/AssetPlaylist";
 import { TagPill } from "@/components/TagPill";
 
 export function ArticleCard({
-  meta,
-  selectedTag
+  meta
 }: {
   meta: ArticleMeta;
-  selectedTag?: string;
 }) {
   return (
     <article className="group relative overflow-hidden rounded-2xl border border-black/10 bg-white/70 p-5 shadow-[0_0_0_1px_rgba(0,0,0,0.04)] transition hover:border-black/15 dark:border-white/10 dark:bg-zinc-950 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.04)] dark:hover:border-white/15">
@@ -35,7 +33,7 @@ export function ArticleCard({
         {meta.tags.length > 0 && (
           <div className="flex flex-wrap gap-2">
             {meta.tags.map((t) => (
-              <TagPill key={t} tag={t} selected={selectedTag === t} />
+              <TagPill key={t} tag={t} href={`/?tag=${encodeURIComponent(t)}`} />
             ))}
           </div>
         )}

@@ -77,20 +77,25 @@ function parseMeta(filePath: string): { meta: ArticleMeta; content: string } {
     ? data.tags.filter((t): t is string => typeof t === "string")
     : [];
 
-  const assets = Array.isArray(data.assets)
+  const assets: ArticleAsset[] = Array.isArray(data.assets)
     ? (data.assets as any[])
-        .map((a) => {
+        .map((a): ArticleAsset | null => {
           if (!a || typeof a !== "object") return null;
           const type = (a as any).type;
           const src = (a as any).src;
           if (type !== "audio" && type !== "image") return null;
           if (typeof src !== "string") return null;
-          const title2 = typeof (a as any).title === "string" ? (a as any).title : undefined;
-          if (type === "audio") return { type, src, title: title2 } as ArticleAsset;
-          const alt = typeof (a as any).alt === "string" ? (a as any).alt : undefined;
-          return { type, src, alt, title: title2 } as ArticleAsset;
+
+          const title2 =
+            typeof (a as any).title === "string" ? (a as any).title : undefined;
+
+          if (type === "audio") return { type, src, title: title2 };
+
+          const alt =
+            typeof (a as any).alt === "string" ? (a as any).alt : undefined;
+          return { type, src, alt, title: title2 };
         })
-        .filter(Boolean)
+        .filter((x): x is ArticleAsset => x !== null)
     : [];
 
   const summary = typeof data.summary === "string" ? data.summary : undefined;
