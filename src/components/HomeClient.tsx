@@ -68,7 +68,7 @@ export function HomeClient({
     <div className="space-y-8">
       <section className="space-y-3">
         <h1 className="text-3xl font-semibold tracking-tight text-zinc-950 dark:text-zinc-50">
-          Creative projects, documented
+          A journal of creative projects over the years.
         </h1>
         <p className="max-w-2xl text-sm text-zinc-600 dark:text-zinc-400">
           This is a feed of article blocks. Filter by tags and keyword search.

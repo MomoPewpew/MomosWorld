@@ -33,14 +33,14 @@ export default function RootLayout({
                       Momo’s World
                     </div>
                     <div className="text-xs text-zinc-600 dark:text-zinc-400">
-                      playful, quiet, crafted
+                      always playful, forever curious
                     </div>
                   </div>
                 </Link>
 
                 <div className="flex items-center gap-3">
                   <div className="hidden text-xs text-zinc-600 dark:text-zinc-500 sm:block">
-                    journal of creative projects
+                    On a quest to understand and to be understood
                   </div>
                   <ThemeToggle />
                 </div>
