@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 
 import "./globals.css";
 import { ThemeProvider } from "@/components/ThemeProvider";
@@ -21,8 +22,12 @@ export default function RootLayout({
           <div className="min-h-dvh">
             <header className="sticky top-0 z-20 border-b border-black/10 bg-white/70 backdrop-blur dark:border-white/10 dark:bg-zinc-950/65">
               <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-6 py-4">
-                <div className="flex items-center gap-3">
-                  <div className="h-8 w-8 rounded-xl border border-black/10 bg-gradient-to-br from-fuchsia-500/35 via-white to-teal-400/25 shadow-[0_0_0_1px_rgba(0,0,0,0.05)] dark:border-white/10 dark:from-fuchsia-500/40 dark:via-zinc-900 dark:to-teal-400/30 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.06)]" />
+                <Link
+                  href="/"
+                  className="group flex items-center gap-3 rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 dark:focus-visible:ring-white/20"
+                  aria-label="Go to home"
+                >
+                  <div className="h-8 w-8 rounded-xl border border-black/10 bg-gradient-to-br from-fuchsia-500/35 via-white to-teal-400/25 shadow-[0_0_0_1px_rgba(0,0,0,0.05)] transition group-hover:shadow-[0_0_0_1px_rgba(0,0,0,0.08)] dark:border-white/10 dark:from-fuchsia-500/40 dark:via-zinc-900 dark:to-teal-400/30 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.06)] dark:group-hover:shadow-[0_0_0_1px_rgba(255,255,255,0.10)]" />
                   <div className="leading-tight">
                     <div className="text-sm font-semibold tracking-wide text-zinc-950 dark:text-zinc-50">
                       Momo’s World
@@ -31,7 +36,7 @@ export default function RootLayout({
                       playful, quiet, crafted
                     </div>
                   </div>
-                </div>
+                </Link>
 
                 <div className="flex items-center gap-3">
                   <div className="hidden text-xs text-zinc-600 dark:text-zinc-500 sm:block">
