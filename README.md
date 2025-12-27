@@ -18,6 +18,13 @@ To make image URLs correct in production, set:
 - `NEXT_PUBLIC_SITE_URL` to your site origin (e.g. `https://example.com`)
   - Recommended: set it as a **GitHub Repository Variable** (Settings → Secrets and variables → Actions → Variables)
 
+## RSS
+
+RSS feeds are generated at build time (static export) from `content/articles/`.
+
+- **All articles**: `/rss.xml`
+- **By tag**: `/rss/tags/<tag>.xml` (tag is slugified, e.g. `audio` → `/rss/tags/audio.xml`)
+
 ## Local development (Docker)
 
 You only need Docker + Docker Compose.

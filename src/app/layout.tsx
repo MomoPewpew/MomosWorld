@@ -45,6 +45,19 @@ export default function RootLayout({
                   <div className="hidden text-xs text-zinc-600 dark:text-zinc-500 sm:block">
                     On a quest to understand and to be understood
                   </div>
+                  <a
+                    href="/rss.xml"
+                    className={[
+                      "inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-medium",
+                      "border-zinc-300/60 bg-white/70 text-zinc-900 hover:bg-white",
+                      "dark:border-white/10 dark:bg-zinc-950/40 dark:text-zinc-100 dark:hover:bg-zinc-950/60",
+                      "backdrop-blur shadow-[0_0_0_1px_rgba(255,255,255,0.04)]",
+                      "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-black/10 dark:focus-visible:ring-white/20"
+                    ].join(" ")}
+                    aria-label="RSS feed"
+                  >
+                    RSS
+                  </a>
                   <ThemeToggle />
                 </div>
               </div>
