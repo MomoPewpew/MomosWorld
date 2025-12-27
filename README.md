@@ -9,6 +9,15 @@ A personal journal of creative projects: an infinite-ish feed of "article blocks
 - Markdown articles with YAML frontmatter (stored in `content/articles/`)
 - Local static media served from `public/` (audio/images)
 
+## Social embeds (Discord/Twitter/etc.)
+
+Article pages set Open Graph/Twitter metadata (title/summary/preview image). The preview image is taken from the **first `image` asset** in the article frontmatter.
+
+To make image URLs correct in production, set:
+
+- `NEXT_PUBLIC_SITE_URL` to your site origin (e.g. `https://example.com`)
+  - Recommended: set it as a **GitHub Repository Variable** (Settings → Secrets and variables → Actions → Variables)
+
 ## Local development (Docker)
 
 You only need Docker + Docker Compose.

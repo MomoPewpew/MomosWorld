@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 
 import { AssetPlaylist } from "@/components/AssetPlaylist";
@@ -8,6 +9,66 @@ export const dynamicParams = false;
 
 export function generateStaticParams() {
   return getAllArticleMetas().map((m) => ({ slug: m.slug }));
+}
+
+function firstOgImage(meta: Awaited<ReturnType<typeof getArticleBySlug>>["meta"]) {
+  const img = meta.assets.find((a) => a.type === "image");
+  if (!img) return undefined;
+  const url = img.src;
+  const ext = (url.split(".").pop() ?? "").toLowerCase();
+  const type =
+    ext === "png"
+      ? "image/png"
+      : ext === "jpg" || ext === "jpeg"
+        ? "image/jpeg"
+        : ext === "webp"
+          ? "image/webp"
+          : ext === "gif"
+            ? "image/gif"
+            : ext === "svg"
+              ? "image/svg+xml"
+              : undefined;
+
+  return {
+    url,
+    alt: img.alt ?? meta.title,
+    type
+  };
+}
+
+export async function generateMetadata({
+  params
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+
+  try {
+    const article = await getArticleBySlug(slug);
+    const image = firstOgImage(article.meta);
+
+    return {
+      title: `${article.meta.title} • Momo’s World`,
+      description: article.meta.summary,
+      openGraph: {
+        title: article.meta.title,
+        description: article.meta.summary,
+        type: "article",
+        url: `/articles/${article.meta.slug}/`,
+        images: image ? [image] : undefined
+      },
+      twitter: {
+        card: image ? "summary_large_image" : "summary",
+        title: article.meta.title,
+        description: article.meta.summary,
+        images: image ? [image.url] : undefined
+      }
+    };
+  } catch {
+    return {
+      title: "Not found • Momo’s World"
+    };
+  }
 }
 
 export default async function ArticlePage({
