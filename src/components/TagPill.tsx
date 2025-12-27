@@ -57,6 +57,7 @@ export function TagPill({
           ? `${palette.selected} ring-1 ring-white/10 dark:ring-white/10`
           : `${palette.base} hover:border-white/20 dark:hover:border-white/20`
       ].join(" ")}
+      aria-pressed={selected ? true : undefined}
     >
       <span className="opacity-80">#</span>
       {tag}

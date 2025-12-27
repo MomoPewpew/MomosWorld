@@ -4,11 +4,30 @@ import type { ArticleMeta } from "@/lib/articles";
 import { AssetPlaylist } from "@/components/AssetPlaylist";
 import { TagPill } from "@/components/TagPill";
 
+function buildHref({
+  tags,
+  q
+}: {
+  tags?: string[];
+  q?: string;
+}) {
+  const sp = new URLSearchParams();
+  for (const t of tags ?? []) sp.append("tag", t);
+  if (q) sp.set("q", q);
+  const qs = sp.toString();
+  return qs ? `/?${qs}` : "/";
+}
+
 export function ArticleCard({
-  meta
+  meta,
+  selectedTags,
+  q
 }: {
   meta: ArticleMeta;
+  selectedTags?: string[];
+  q?: string;
 }) {
+  const current = selectedTags ?? [];
   return (
     <article className="group relative overflow-hidden rounded-2xl border border-black/10 bg-white/70 p-5 shadow-[0_0_0_1px_rgba(0,0,0,0.04)] transition hover:border-black/15 dark:border-white/10 dark:bg-zinc-950 dark:shadow-[0_0_0_1px_rgba(255,255,255,0.04)] dark:hover:border-white/15">
       <div className="pointer-events-none absolute inset-0 opacity-0 transition group-hover:opacity-100">
@@ -32,9 +51,23 @@ export function ArticleCard({
 
         {meta.tags.length > 0 && (
           <div className="flex flex-wrap gap-2">
-            {meta.tags.map((t) => (
-              <TagPill key={t} tag={t} href={`/?tag=${encodeURIComponent(t)}`} />
-            ))}
+            {meta.tags.map((t) => {
+              const set = new Set(current);
+              if (set.has(t)) set.delete(t);
+              else set.add(t);
+              const nextTags = [...set].sort((a, b) => a.localeCompare(b));
+              return (
+                <TagPill
+                  key={t}
+                  tag={t}
+                  href={buildHref({
+                    tags: nextTags,
+                    q: q || undefined
+                  })}
+                  selected={current.includes(t)}
+                />
+              );
+            })}
           </div>
         )}
 

@@ -8,14 +8,14 @@ import { ArticleCard } from "@/components/ArticleCard";
 import { TagPill } from "@/components/TagPill";
 
 function buildHref({
-  tag,
+  tags,
   q
 }: {
-  tag?: string;
+  tags?: string[];
   q?: string;
 }) {
   const sp = new URLSearchParams();
-  if (tag) sp.set("tag", tag);
+  for (const t of tags ?? []) sp.append("tag", t);
   if (q) sp.set("q", q);
   const qs = sp.toString();
   return qs ? `/?${qs}` : "/";
@@ -31,7 +31,13 @@ export function HomeClient({
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const selectedTag = (searchParams.get("tag") ?? "").trim();
+  const selectedTags = useMemo(() => {
+    const raw = searchParams
+      .getAll("tag")
+      .map((t) => t.trim())
+      .filter(Boolean);
+    return Array.from(new Set(raw)).sort((a, b) => a.localeCompare(b));
+  }, [searchParams]);
   const q = (searchParams.get("q") ?? "").trim();
 
   const [draftQ, setDraftQ] = useState(q);
@@ -39,14 +45,24 @@ export function HomeClient({
   const filtered = useMemo(() => {
     const qLower = q.toLowerCase();
     return all.filter((a) => {
-      if (selectedTag && !a.tags.includes(selectedTag)) return false;
+      if (selectedTags.length > 0) {
+        const hasAny = selectedTags.some((t) => a.tags.includes(t));
+        if (!hasAny) return false;
+      }
       if (!qLower) return true;
       const haystack = [a.title, a.summary ?? "", a.tags.join(" ")]
         .join(" ")
         .toLowerCase();
       return haystack.includes(qLower);
     });
-  }, [all, q, selectedTag]);
+  }, [all, q, selectedTags]);
+
+  const toggleTag = (t: string) => {
+    const set = new Set(selectedTags);
+    if (set.has(t)) set.delete(t);
+    else set.add(t);
+    return [...set].sort((a, b) => a.localeCompare(b));
+  };
 
   return (
     <div className="space-y-8">
@@ -65,7 +81,12 @@ export function HomeClient({
           className="flex flex-col gap-4 sm:flex-row sm:items-end"
           onSubmit={(e) => {
             e.preventDefault();
-            router.push(buildHref({ tag: selectedTag || undefined, q: draftQ || undefined }));
+            router.push(
+              buildHref({
+                tags: selectedTags.length ? selectedTags : undefined,
+                q: draftQ || undefined
+              })
+            );
           }}
         >
           <div className="flex-1">
@@ -109,8 +130,11 @@ export function HomeClient({
                 <TagPill
                   key={t}
                   tag={t}
-                  href={buildHref({ tag: selectedTag === t ? undefined : t, q: q || undefined })}
-                  selected={selectedTag === t}
+                  href={buildHref({
+                    tags: toggleTag(t),
+                    q: q || undefined
+                  })}
+                  selected={selectedTags.includes(t)}
                 />
               ))}
             </div>
@@ -130,12 +154,15 @@ export function HomeClient({
               {all.length}
             </span>
           </div>
-          {(selectedTag || q) && (
+          {(selectedTags.length > 0 || q) && (
             <div className="text-xs text-zinc-500 dark:text-zinc-500">
               Filters:{" "}
-              {selectedTag && (
+              {selectedTags.length > 0 && (
                 <span className="text-zinc-700 dark:text-zinc-300">
-                  tag=<span className="font-medium">{selectedTag}</span>{" "}
+                  tags=
+                  <span className="font-medium">
+                    {selectedTags.join(", ")}
+                  </span>{" "}
                 </span>
               )}
               {q && (
@@ -154,7 +181,12 @@ export function HomeClient({
         ) : (
           <div className="space-y-4">
             {filtered.map((m) => (
-              <ArticleCard key={m.slug} meta={m} />
+              <ArticleCard
+                key={m.slug}
+                meta={m}
+                selectedTags={selectedTags}
+                q={q}
+              />
             ))}
           </div>
         )}
