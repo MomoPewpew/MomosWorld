@@ -4,6 +4,7 @@ date: "2024-11-02"
 slug: "tape-loops-study-3"
 tags: ["audio", "tape", "ambient"]
 summary: "Experimenting with spliced tape loops + re-amping."
+pinnedOrder: 2
 assets:
   - type: "image"
     src: "/media/tape-loops-3/rack.svg"

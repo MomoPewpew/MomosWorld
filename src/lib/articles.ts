@@ -25,6 +25,7 @@ export type ArticleMeta = {
   tags: string[];
   summary?: string;
   assets: ArticleAsset[];
+  pinnedOrder?: number;
 };
 
 export type Article = {
@@ -99,9 +100,23 @@ function parseMeta(filePath: string): { meta: ArticleMeta; content: string } {
     : [];
 
   const summary = typeof data.summary === "string" ? data.summary : undefined;
+  const pinnedOrderRaw =
+    typeof (data as any).pinnedOrder === "number"
+      ? (data as any).pinnedOrder
+      : typeof (data as any).pinned_order === "number"
+        ? (data as any).pinned_order
+        : typeof (data as any).pinnedOrder === "string"
+          ? Number((data as any).pinnedOrder)
+          : typeof (data as any).pinned_order === "string"
+            ? Number((data as any).pinned_order)
+            : undefined;
+  const pinnedOrder =
+    typeof pinnedOrderRaw === "number" && Number.isFinite(pinnedOrderRaw)
+      ? pinnedOrderRaw
+      : undefined;
 
   return {
-    meta: { title, date, slug, tags, summary, assets },
+    meta: { title, date, slug, tags, summary, assets, pinnedOrder },
     content: parsed.content
   };
 }
@@ -109,6 +124,18 @@ function parseMeta(filePath: string): { meta: ArticleMeta; content: string } {
 export function getAllArticleMetas(): ArticleMeta[] {
   const metas = listArticleFiles().map((filePath) => parseMeta(filePath).meta);
   return metas.sort((a, b) => (a.date < b.date ? 1 : a.date > b.date ? -1 : 0));
+}
+
+export function getPinnedArticleMetas(): ArticleMeta[] {
+  return getAllArticleMetas()
+    .filter((m) => typeof m.pinnedOrder === "number" && m.pinnedOrder > 0)
+    .sort((a, b) => {
+      const ao = a.pinnedOrder ?? Number.POSITIVE_INFINITY;
+      const bo = b.pinnedOrder ?? Number.POSITIVE_INFINITY;
+      if (ao !== bo) return ao - bo;
+      // tie-breaker: newest first
+      return a.date < b.date ? 1 : a.date > b.date ? -1 : 0;
+    });
 }
 
 export function getAllTags(): string[] {
